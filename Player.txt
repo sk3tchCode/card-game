@@ -1,0 +1,156 @@
+import java.util.ArrayList;
+
+public class Player {
+
+    //instance variables
+    private String name;
+    private int points;
+    private ArrayList<Card> hand;
+
+
+    //constructor
+    /* the constructor for the Player class, assigns values to the instance variables
+     * name (depends on parameter), points and hand
+     *
+     * @param name  the value to be assigned to the instance variable name
+     */
+    public Player (String name){
+        this.name = name;
+        this.points = 0;
+        this.hand = new ArrayList<Card>();
+    }
+
+
+    /* returns name of player
+     *
+     * @return name of player
+     */
+    public String getName(){
+        return this.name;
+    }
+    
+    // only for testing
+    public void addCard(Card card){
+        this.hand.add(card);
+    }
+    
+    /* returns player score
+     *
+     * @return number of points the player has
+     */
+    public int getPoints(){
+        return this.points;
+    }
+
+
+    /* returns a list of cards in the player's hand
+     *
+     * @return array list of cards in hand
+     */
+    public ArrayList<Card> getHand(){
+        return this.hand;
+    }
+
+
+    /* adds or subtracts player score
+     *
+     * @param change - change in points for player score
+     */
+    public void changePoints(int change){
+        this.points += change;
+    }
+
+
+    /* adds a number of cards to the player's hand using a randomizer
+     *
+     * @param deck - an array list of the remaining undrawn cards
+     * @param toAdd- the number of cards that will be drawn from the deck and added
+     * @return the updated deck after the player draws card(s) from it
+     */
+    public void addCards(ArrayList<Card> deck, int toAdd){
+        // loops through as many times as the number of cards to be added
+        for (int i = 0; i < toAdd; i++){
+            // picks a random integer index between
+            int index = (int) (Math.random()*deck.size());
+
+            // adds the card at the random index to the players hand
+            this.hand.add(deck.get(index));
+
+            // removes the random card from the deck
+            deck.remove(index);
+        }
+    }
+
+
+    /* removes a card from the player's hand
+     *
+     * @param card - the card selected to be removed
+     */
+    public void removeCard(int cardIndex){
+        this.hand.remove(cardIndex);
+    }
+
+
+    /* removes two cards from the player's hand
+     *
+     * @param cardIndex1 - the first index to be removed
+     * @param cardIndex2 - the second index to be removed
+     */
+    public void removeCard(int cardIndex1, int cardIndex2){
+
+        if (cardIndex1 < cardIndex2){
+            this.hand.remove(cardIndex1);
+            this.hand.remove(cardIndex2 - 1);
+        }
+
+        else {
+            this.hand.remove(cardIndex2);
+            this.hand.remove(cardIndex1 - 1);
+        }
+    }
+
+    /* checks if the player's hand has cards that can add up to a selected sum
+     *
+     * @param sum - the selected sum that two cards will add up to
+     * @return boolean value indicating if the player has lied
+     */
+    public boolean checkHand(int sum){
+        // loops through every card in the player's hand
+        for(int i = 0; i < hand.size(); i++){
+            for(int j = 0; j < hand.size(); j++){
+
+                int addedNums = 0;
+
+                // only calculates sums between different cards
+                if(j != i){
+                    addedNums = hand.get(i).getNum() + hand.get(j).getNum();
+                }
+
+                // if there is a pair of cards that adds to the given sum
+                if(addedNums == sum){
+                    return false; //false means the player is lying
+                }
+            }
+        }
+        return true;
+    }
+
+    /* returns a string containing a formatted list the names of all the cards
+     *  in the players hand
+     *
+     * @return a list of all cards in the player's hand
+     */
+    public String toString(){
+        String cardHand = this.name + "'s " + "Hand:\n--------------\n";
+
+        for (int i = 0; i < hand.size(); i++){
+
+            cardHand += "Index " + i + ". " + hand.get(i) + "\n";
+        }
+
+        cardHand += "--------------";
+
+        return cardHand;
+    }
+
+}

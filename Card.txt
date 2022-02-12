@@ -1,0 +1,56 @@
+public class Card {
+
+    // Instance Variables
+    private String suit;
+    private int num;
+
+    /** The constructor method for Card, sets the values for the instance
+     *  variables depending on parameter input
+     *
+     * @param suit  the String value to be assigned to the instance variable "suit"
+     * @param num   the int value to be assigned to the instance variable "num"
+     */
+    public Card (String suit, int num){
+        this.suit = suit;
+        this.num = num;
+    }
+
+    /** A getter method that returns the value of the instance variable "num"
+     *
+     * @return  the instance variable "num"
+     */
+    public int getNum() {
+        return num;
+    }
+
+    /* returns a string describing the card's suit and value
+     *
+     * @return   the card's suit and value
+     */
+    public String toString(){
+        String cardName = "";
+
+        if(num == 1){
+            cardName = "Ace";
+        }
+
+        else if(num == 11){
+            cardName = "Jack";
+        }
+
+        else if(num == 12){
+            cardName = "Queen";
+        }
+
+        else if(num == 13){
+            cardName = "King";
+        }
+
+        else {
+            cardName += num;
+        }
+
+        return cardName + " of " + suit;
+    }
+
+}

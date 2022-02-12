@@ -1,0 +1,504 @@
+import java.util.Scanner;
+import java.util.ArrayList;
+
+/* This program allows two players to play a card game with a points scoring system and a deck of 52 cards. The Player and Card class are utilized.
+ * @author Zaina, Ahsan, Ivy
+ */
+public class CardGame
+{
+    
+    /** This method checks whether or not an index is a valid index depending on
+     *  parameter input
+     *
+     * @param arrayListSize the size of the ArrayList
+     * @param index the index 
+     * @return  the instance variable "num"
+     */
+    public static boolean checkIndex(int arrayListSize, int index){
+        if (index > -1 && index < arrayListSize){
+            return true;
+        }
+        
+        return false;
+    }
+
+    public static void main(String[] args)
+    {
+        Scanner in = new Scanner(System.in);
+        int turn = 1; //counter for turns
+        
+        
+        // create an ArrayList for the cards
+        ArrayList <Card> deck = new ArrayList<Card>();
+        String[] suits = {"Hearts", "Clubs", "Spades", "Diamonds"};
+        int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+
+        // add 52 card objects to the deck
+        for (String suit: suits) {
+            for (int number : numbers){
+                deck.add(new Card(suit, number));
+            }
+        }
+        
+        //Ask user to input their name
+        System.out.print("Enter name for player one: ");
+        String name1 = in.nextLine();
+        
+        System.out.print("Enter name for player two: ");
+        String name2 = in.nextLine();
+    
+        // create 2 player classes
+        Player player1 = new Player(name1);
+        Player player2 = new Player(name2);
+        
+        // players start off with 5 cards
+        player1.addCards(deck, 5);
+        player2.addCards(deck, 5);
+        
+        System.out.println();
+        
+        // start loop an a half
+        do {
+            int sum;
+            int turn1index;
+            int turn2Index1;
+            int turn2Index2;
+            String turn2Choice;
+            boolean turn2IsTruthful;
+            boolean validIndex;
+            
+            // if the turn is odd
+            if(turn % 2 != 0){
+                
+                //print player 1's hand
+                System.out.println(player1);
+                
+                //Get player 1 to chose one card by index
+                System.out.println(player1.getName() + " choose a card to be the sum.");
+                //loops until user enters a valid index
+                do {
+                    System.out.println(player1.getName() + " please enter a valid card index:");
+                    turn1index = in.nextInt();
+                    validIndex = checkIndex(player1.getHand().size(), turn1index);
+                } while(!validIndex);
+                
+                in.nextLine();
+              
+                //get the selected cards value
+                sum = player1.getHand().get(turn1index).getNum();
+                
+                //remove the cosen card from hand
+                player1.removeCard(turn1index);
+                System.out.println();
+                
+                //print player 2's hand
+                System.out.println(player2);
+                //ask if player two wants to chose cards
+                System.out.println(player2.getName() + " do you have 2 cards that add up to " + sum + "? (Enter Y for yes) ");
+                turn2Choice = in.nextLine();
+                
+                //if two cards can be chosen ask for input
+                if (turn2Choice.equalsIgnoreCase("y")){
+                    //loops until user enters a valid index
+                    do {
+                        System.out.println(player2.getName() + " please enter the first valid card index to remove:");
+                        turn2Index1 = in.nextInt();
+                        validIndex = checkIndex(player2.getHand().size(), turn2Index1);
+                    } while(!validIndex);
+                    
+                    //loops until user enters a valid index
+                    do {
+                        System.out.println("Please enter the second valid card index to remove:");
+                        turn2Index2 = in.nextInt();
+                        //loop and ask for turn2Index2 if the second index is equal to turn2Index1
+                        while (turn2Index2 == turn2Index1){
+                            System.out.println("You cannot choose the same index twice. Please enter the second valid card index to remove:");
+                            turn2Index2 = in.nextInt();
+                        }
+                        validIndex = checkIndex(player2.getHand().size(), turn2Index2);
+                    } while(!validIndex);
+                    
+                    //check if the cards chosen sum successfully
+                    if (player2.getHand().get(turn2Index1).getNum() + player2.getHand().get(turn2Index2).getNum() == sum){
+                        System.out.println(player1.getName() + " has earned 1 point.");
+                        player1.changePoints(1);
+                    } 
+                    else {
+                        // checks to see if the player was lying
+                        turn2IsTruthful = player2.checkHand(sum);
+                        
+                        // if the player was lying, then they lose a point
+                        if (!turn2IsTruthful){
+                            System.out.println(player2.getName() + " has lost 1 point for lying.");
+                            player2.changePoints(-1);
+                        }
+                        else {
+                            System.out.println("No one gets a point!");
+                        }
+                    }
+                    
+                    player2.removeCard(turn2Index1, turn2Index2);
+                    
+                    // if there are enough cards in the deck, then add 2 cards
+                    if (5 - player2.getHand().size() < deck.size()){
+                        player2.addCards(deck, 2);
+                        System.out.println();
+                    }
+                    // if there aren't enough cards to add the end the game (by ending the loop)
+                    else {
+                        System.out.println("There are not enough cards left! The game has ended.");
+                        break;
+                    }
+                }
+                // if player 2 does not choose to drop 2 cards
+                else {
+                    System.out.println();
+                    System.out.println(player2.getName() + " did not select any cards.");
+                    
+                    // checks to see if the player was lying
+                    turn2IsTruthful = player2.checkHand(sum);
+                        
+                    // if the player was lying, then they lose a point
+                    if (!turn2IsTruthful){
+                        System.out.println(player2.getName() + " has lost 1 point for lying.");
+                        player2.changePoints(-1);
+                        System.out.println();
+                    }
+                    // if they were truthful:
+                    else {
+                        System.out.println("No one gets a point!");
+                        System.out.println();
+                    }
+                }
+                
+                // if there are enough cards in the deck, then add a card
+                if (5 - player1.getHand().size() < deck.size()){
+                    player1.addCards(deck, 1);
+                }
+                // if there aren't enough cards to add the end the game (by ending the loop)
+                else {
+                    System.out.println("There are not enough cards left! The game has ended.");
+                    break;
+                }
+            
+            // if the turn is even (player 1 and player 2 roles switch)   
+            }else {
+                
+                //print player 2's hand
+                System.out.println(player2);
+                
+                //Get player 2 to chose one card by index
+                System.out.println(player2.getName() + " choose a card to be the sum.");
+                //loops until user enters a valid index
+                do {
+                    System.out.println(player2.getName() + " please enter a valid card index:");
+                    turn1index = in.nextInt();
+                    validIndex = checkIndex(player1.getHand().size(), turn1index);
+                } while(!validIndex);
+                
+                in.nextLine();
+              
+                //get the selected cards value
+                sum = player2.getHand().get(turn1index).getNum();
+                
+                //remove the chosen card from hand
+                player2.removeCard(turn1index);
+                System.out.println();
+                
+                //print player 1's hand
+                System.out.println(player1);
+                //ask if player two wants to chose cards
+                System.out.println(player1.getName() + " do you have 2 cards that add up to " + sum + "? (Enter Y for yes) ");
+                turn2Choice = in.nextLine();
+                
+                //if two cards can be chosen ask for input
+                if (turn2Choice.equalsIgnoreCase("y")){
+                    //loops until user enters a valid index
+                    do {
+                        System.out.println(player1.getName() + " please enter the first valid card index to remove:");
+                        turn2Index1 = in.nextInt();
+                        validIndex = checkIndex(player1.getHand().size(), turn2Index1);
+                    } while(!validIndex);
+                    
+                    //loops until user enters a valid index
+                    do {
+                        System.out.println("Please enter the second valid card index to remove:");
+                        turn2Index2 = in.nextInt();
+                        //loop and ask for turn2Index2 if the second index is equal to turn2Index1
+                        while (turn2Index2 == turn2Index1){
+                            System.out.println("You cannot choose the same index twice. Please enter the second valid card index to remove:");
+                            turn2Index2 = in.nextInt();
+                        }
+                        validIndex = checkIndex(player1.getHand().size(), turn2Index2);
+                    } while(!validIndex);
+                    
+                    //check if the cards chosen sum successfully
+                    if (player1.getHand().get(turn2Index1).getNum() + player1.getHand().get(turn2Index2).getNum() == sum){
+                        System.out.println(player2.getName() + " has earned 1 point.");
+                        player2.changePoints(1);
+                    } 
+                    else {
+                        // checks to see if the player was lying
+                        turn2IsTruthful = player1.checkHand(sum);
+                        
+                        // if the player was lying, then they lose a point
+                        if (!turn2IsTruthful){
+                            System.out.println(player1.getName() + " has lost 1 point for lying.");
+                            player1.changePoints(-1);
+                        }
+                        else {
+                            System.out.println("No one gets a point!");
+                        }
+                    }
+                    
+                    player1.removeCard(turn2Index1, turn2Index2);
+                    
+                    // if there are enough cards in the deck, then add 2 cards
+                    if (5 - player1.getHand().size() < deck.size()){
+                        player1.addCards(deck, 2);
+                    }
+                    // if there aren't enough cards to add the end the game (by ending the loop)
+                    else {
+                        System.out.println("There are not enough cards left! The game has ended.");
+                        break;
+                    }
+                }
+                
+                // if player 2 does not choose to drop 2 cards
+                else {
+                    System.out.println();
+                    System.out.println(player1.getName() + " did not select any cards.");
+                    
+                    // checks to see if the player was lying
+                    turn2IsTruthful = player1.checkHand(sum);
+                        
+                    // if the player was lying, then they lose a point
+                    if (!turn2IsTruthful){
+                        System.out.println(player1.getName() + " has lost 1 point for lying.");
+                        player1.changePoints(-1);
+                    }
+                    // if they were truthful:
+                    else {
+                        System.out.println("No one gets a point!");
+                    }
+                }
+                
+                // if there are enough cards in the deck, then add a card
+                if (5 - player2.getHand().size() < deck.size()){
+                    player2.addCards(deck, 1);
+                }
+                // if there aren't enough cards to add the end the game (by ending the loop)
+                else {
+                    System.out.println("There are not enough cards left! The game has ended.");
+                    break;
+                }
+            }
+            
+            // increments turn so that the players switch roles next turn
+            turn++;
+            
+            System.out.println("The round has ended.");
+            
+            //prints out both players' points at the end of the round
+            System.out.println(player1.getName() + " has " + player1.getPoints() + " points.");
+            System.out.println(player2.getName() + " has " + player2.getPoints() + " points.");
+            System.out.println();
+            
+        } while (true);
+        
+        String winner;
+        
+        // checks to see who won and records it in the String winner
+        if (player1.getPoints() > player2.getPoints()){
+            winner = player1.getName() + " has won with " + player1.getPoints() + " points.";
+        }
+        else if (player2.getPoints() > player1.getPoints()){
+            winner = player2.getName() + " has won with " + player2.getPoints() + " points.";
+        }else{
+            winner = "tie";
+        }
+        
+        // prints the winner
+        System.out.println();
+        System.out.println("----------");
+        System.out.println(winner + "!");
+        System.out.println("----------");
+    }
+
+    //appendix A
+    public static void testCardClass(){
+
+        //Test case 1: create a deck of 52 cards and print card at
+        //a specific index
+        ArrayList<Card> deck = new ArrayList<Card>();
+        String[] suits = {"Hearts", "Clubs", "Spades", "Diamonds"};
+        int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+
+        for (String suit: suits) {
+            for (int number : numbers){
+                deck.add(new Card(suit, number));
+            }
+        }
+
+        // testing the toString method of the Card class
+        System.out.println("Expected output: Jack of Hearts");
+        System.out.print("Actual output: ");
+        System.out.println(deck.get(52));
+    }
+
+    //appendix B
+    public static void testPlayerClassEditHand(ArrayList<Card> deck){
+        //Test case 2: create player class and testing methods that
+        //edit the cards
+        Player playerOne = new Player("person");
+
+        // add 5 random cards to the player's hand
+        playerOne.addCards(deck, 5);
+        System.out.println(playerOne);
+
+        // remove a card from the player's hand given the index
+        playerOne.removeCard(4);
+        System.out.println(playerOne);
+
+        // remove two cards from the player's hand given first index
+        //is smaller than second
+        playerOne.removeCard(0, 1);
+        System.out.println(playerOne);
+
+        // adds 3 more cards to hand
+        playerOne.addCards(deck, 3);
+        System.out.println(playerOne);
+
+        // remove two cards from player's hand given first index
+        //is greater than second
+        playerOne.removeCard(4, 2);
+        System.out.println(playerOne);
+
+        // check if deck has lost cards
+        System.out.println(deck.size());
+    }
+
+    //appendix C
+    public static void testPlayerClassCheckHand (ArrayList<Card> deck){
+        //Test case 3: create player class and tests the check hand method
+        Player playerOne = new Player("person");
+
+        playerOne.addCard(deck.get(0));
+        playerOne.addCard(deck.get(1));
+        playerOne.addCard(deck.get(2));
+        playerOne.addCard(deck.get(3));
+        playerOne.addCard(deck.get(4));
+
+        System.out.println(playerOne);
+        System.out.println();
+        System.out.println("Sum: 3");
+
+        System.out.println("Expected output: false");
+        System.out.print("Actual output: ");
+        System.out.print(playerOne.checkHand(3));
+    }
+    
+    //appendix D
+    public static void testCheckIndex(ArrayList<Card> deck){
+        
+        System.out.println("Testing checkIndex:");
+        
+        //Test ID 1: test an index value equal to the size of the deck (greater than possible index)
+        int deckSize = deck.size(); //should be 52
+        int index = 52;
+        
+        //should be false (not a valid index)
+        boolean validIndex = checkIndex(deckSize, index);
+        
+        if(!validIndex){
+            System.out.println("Test ID 1: Passed");
+        }else{
+            System.out.println("Test ID 1: Failed");
+        }
+        
+        
+        //Test ID 2: test an index value less than 0
+        // deck size is 52
+        index = -1;
+        
+        //should be false (not a valid index)
+        validIndex = checkIndex(deckSize, index);
+        
+        if(!validIndex){
+            System.out.println("Test ID 2: Passed");
+        }else{
+            System.out.println("Test ID 2: Failed");
+        }
+        
+        
+        //Test ID 3: test an index value of 0 when there are no objects in the ArrayList (ArrayList size is 0)
+        deckSize = 0;
+        index = 0;
+        
+        //should be false (not a valid index)
+        validIndex = checkIndex(deckSize, index);
+        
+        if(!validIndex){
+            System.out.println("Test ID 3: Passed");
+        }else{
+            System.out.println("Test ID 3: Failed");
+        }
+        
+        
+        //Test ID 4: test an index value in between 0 and the ArrayList size - 1 (assuming ArrayList size > 0)
+        deckSize = deck.size(); // should be 52
+        index = 30;
+        
+        //should be true (valid index)
+        validIndex = checkIndex(deckSize, index);
+        
+        if(validIndex){
+            System.out.println("Test ID 4: Passed");
+        }else{
+            System.out.println("Test ID 4: Failed");
+        }
+    }
+    
+    //appendix E
+    public static void testPoints(){
+        //Test case 5: create player class and add/subtract points
+        Player one = new Player ("PersonA");
+        
+        //add/subtract points points
+        one.changePoints(-4);
+        one.changePoints(5);
+        one.changePoints(5);
+        
+        //output
+        System.out.println("Expected output: 6");
+        System.out.println("Actual Output: " + one.getPoints());
+    }
+    
+    //appendix F
+    public static void testWin(){
+        //Test case 6: test winning statements/conditions
+        Player one = new Player ("PersonA");
+        Player two = new Player("PersonB");
+        
+        //add points
+        one.changePoints(10);
+        two.changePoints(7);
+        
+        String winner;
+        
+        //conditions to decide winner
+        if (one.getPoints() > two.getPoints()){
+            winner = one.getName() + " has won";
+        }
+        else if (two.getPoints() > one.getPoints()){
+            winner = two.getName() + " has won";
+        }else{
+            winner = "tie";
+        }
+        
+        //output
+        System.out.println("Expected output: PersonA has won!");
+        System.out.println("Actual output: "+ winner + "!");
+    }
+    
+}
